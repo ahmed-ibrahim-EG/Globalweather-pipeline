@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GlobalWeather Pipeline</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #222;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .empty {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🌍 GlobalWeather Pipeline</h1>
+
+    <p>
+        Latest weather readings collected by the ETL pipeline.
+    </p>
+
+    {% if weather_data %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Country</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Temperature °C</th>
+                <th>Humidity %</th>
+                <th>Wind Speed</th>
+                <th>Recorded At</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for weather in weather_data %}
+
+            <tr>
+                <td>{{ weather.CityName }}</td>
+                <td>{{ weather.Country }}</td>
+                <td>{{ weather.Latitude }}</td>
+                <td>{{ weather.Longitude }}</td>
+                <td>{{ weather.TemperatureC }}</td>
+                <td>{{ weather.Humidity }}</td>
+                <td>{{ weather.WindSpeed }}</td>
+                <td>{{ weather.RecordedAt }}</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+    <div class="empty">
+        <strong>No weather data available.</strong>
+        <p>
+            Run the ETL pipeline first and make sure
+            the database contains weather readings.
+        </p>
+    </div>
+
+    {% endif %}
+
+</body>
+
+</html>
