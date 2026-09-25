@@ -1,12 +1,15 @@
 # 🌍 GlobalWeather Pipeline
+
 ### Automated Weather ETL Pipeline
 
-A beginner-friendly Data Engineering project built to practice the core concepts of building an end-to-end ETL pipeline.  
+A beginner-friendly Data Engineering project built to practice the core concepts of building an end-to-end ETL pipeline.
 The project collects weather data from a public API, transforms and validates the data, loads it into Microsoft SQL Server, and provides simple SQL views and a lightweight Flask interface for data consumption.
 
-- **Project Type:** Pure Data Engineering Training / Portfolio Project
-- **Level:** Beginner Data Engineer
-- **Focus:** ETL, Data Quality, SQL Server, Idempotent Loading, Automation
+![GlobalWeather Pipeline Flow](FLOW.jpg)
+
+* **Project Type:** Pure Data Engineering Training / Portfolio Project
+* **Level:** Beginner Data Engineer
+* **Focus:** ETL, Data Quality, SQL Server, Idempotent Loading, Automation
 
 ---
 
@@ -49,76 +52,83 @@ The project intentionally uses a simple relational design with a single main wea
 
 The main goals of this project are to practice:
 
-- Building a Python-based ETL pipeline
-- Working with public REST APIs
-- Handling API responses
-- Data transformation and standardization
-- Data validation and quality checks
-- Python-to-SQL Server connectivity
-- Idempotent data loading
-- Transaction handling and rollback
-- Logging and error handling
-- SQL views
-- Basic pipeline automation
-- Separating data processing stages
-- Building a simple data consumption layer
+* Building a Python-based ETL pipeline
+* Working with public REST APIs
+* Handling API responses
+* Data transformation and standardization
+* Data validation and quality checks
+* Python-to-SQL Server connectivity
+* Idempotent data loading
+* Transaction handling and rollback
+* Logging and error handling
+* SQL views
+* Basic pipeline automation
+* Separating data processing stages
+* Building a simple data consumption layer
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-| :--- | :--- |
-| **Python** | ETL pipeline |
-| **Requests** | API communication |
-| **Pandas** | Data processing foundation |
-| **pyodbc** | SQL Server connectivity |
-| **Microsoft SQL Server** | Data storage |
-| **T-SQL** | Database objects and views |
-| **python-dotenv** | Environment configuration |
-| **Flask** | Lightweight data display |
-| **HTML/CSS** | Simple web interface |
-| **Git & GitHub** | Version control |
+| Technology               | Purpose                    |
+| :----------------------- | :------------------------- |
+| **Python**               | ETL pipeline               |
+| **Requests**             | API communication          |
+| **Pandas**               | Data processing foundation |
+| **pyodbc**               | SQL Server connectivity    |
+| **Microsoft SQL Server** | Data storage               |
+| **T-SQL**                | Database objects and views |
+| **python-dotenv**        | Environment configuration  |
+| **Flask**                | Lightweight data display   |
+| **HTML/CSS**             | Simple web interface       |
+| **Git & GitHub**         | Version control            |
 
 ---
 
 ## 🔄 ETL Pipeline
 
 ### 1. Extract
-The extraction stage communicates with the Open-Meteo API.  
+
+The extraction stage communicates with the Open-Meteo API.
 The pipeline reads cities and their coordinates from:
-- `config/cities.json`
+
+* `config/cities.json`
 
 For each city, the API client retrieves:
-- City information
-- Latitude
-- Longitude
-- Temperature
-- Humidity
-- Wind speed
-- Weather timestamp
-- Extraction timestamp
+
+* City information
+* Latitude
+* Longitude
+* Temperature
+* Humidity
+* Wind speed
+* Weather timestamp
+* Extraction timestamp
 
 The extractor also handles:
-- HTTP errors
-- Connection errors
-- Request timeouts
-- Rate limiting
-- Retry attempts
-- Failed cities
-- API response validation
+
+* HTTP errors
+* Connection errors
+* Request timeouts
+* Rate limiting
+* Retry attempts
+* Failed cities
+* API response validation
 
 ---
 
 ### 2. Transform
-The transformation stage prepares the extracted data before validation and loading.  
+
+The transformation stage prepares the extracted data before validation and loading.
 Current transformations include:
-- Standardizing city names
-- Handling missing values
-- Converting the API timestamp string into a Python datetime
-- Classifying temperature into climate categories
+
+* Standardizing city names
+* Handling missing values
+* Converting the API timestamp string into a Python datetime
+* Classifying temperature into climate categories
 
 **Example:**
+
 ```text
 " cairo "
       ↓
@@ -126,6 +136,7 @@ Current transformations include:
 ```
 
 **Timestamp:**
+
 ```text
 "2026-09-25T02:00"
       ↓
@@ -133,52 +144,61 @@ Python datetime
 ```
 
 **Climate classification:**
-- `Temperature > 30°C` → Hot
-- `Temperature ≥ 20°C` → Moderate
-- `Temperature < 20°C` → Cold
+
+* `Temperature > 30°C` → Hot
+* `Temperature ≥ 20°C` → Moderate
+* `Temperature < 20°C` → Cold
 
 ---
 
 ### 3. Validate
+
 The validation stage checks whether transformed records satisfy the project's data quality rules.
 
 **Examples:**
-- Required fields must exist
-- City name must be valid
-- Country must be valid
-- Temperature must be within the accepted range
-- Humidity must be between 0 and 100
-- Wind speed cannot be negative
-- Latitude must be between -90 and 90
-- Longitude must be between -180 and 180
-- Timestamp must exist
+
+* Required fields must exist
+* City name must be valid
+* Country must be valid
+* Temperature must be within the accepted range
+* Humidity must be between 0 and 100
+* Wind speed cannot be negative
+* Latitude must be between -90 and 90
+* Longitude must be between -180 and 180
+* Timestamp must exist
 
 > **Note:** Invalid records are not sent to the loading stage.
 
 ---
 
 ### 4. Load
-Valid records are loaded into Microsoft SQL Server using `pyodbc`.  
+
+Valid records are loaded into Microsoft SQL Server using `pyodbc`.
 The main table is:
-- `dbo.WeatherReadings`
+
+* `dbo.WeatherReadings`
 
 The loader implements:
-- Database connection handling
-- Duplicate detection
-- Insert operations
-- Transaction commit
-- Transaction rollback
-- Logging
-- Database connection cleanup
+
+* Database connection handling
+* Duplicate detection
+* Insert operations
+* Transaction commit
+* Transaction rollback
+* Logging
+* Database connection cleanup
 
 The project uses:
+
 ```text
 CityName + RecordedAt
 ```
-as the logical duplicate check.  
+
+as the logical duplicate check.
 This allows the pipeline to behave in an idempotent way.
 
 **Example:**
+
 ```text
 First Run
 100 records
@@ -198,22 +218,25 @@ Second Run
 The project intentionally uses a simple relational design.
 
 ### Main Table: `WeatherReadings`
+
 Contains:
-- `WeatherReadingID`
-- `CityName`
-- `Country`
-- `Latitude`
-- `Longitude`
-- `TemperatureC`
-- `Humidity`
-- `WindSpeed`
-- `RecordedAt`
+
+* `WeatherReadingID`
+* `CityName`
+* `Country`
+* `Latitude`
+* `Longitude`
+* `TemperatureC`
+* `Humidity`
+* `WindSpeed`
+* `RecordedAt`
 
 The database also contains constraints for:
-- Latitude
-- Longitude
-- Humidity
-- Duplicate city/timestamp combinations
+
+* Latitude
+* Longitude
+* Humidity
+* Duplicate city/timestamp combinations
 
 ---
 
@@ -221,9 +244,9 @@ The database also contains constraints for:
 
 The project includes several SQL Server views:
 
-- `vw_LatestWeatherByCity`: Returns the latest weather reading for each city.
-- `vw_WeatherStatistics`: Provides overall weather statistics across all records.
-- `vw_CityWeatherStatistics`: Provides aggregated statistics for each city.
+* `vw_LatestWeatherByCity`: Returns the latest weather reading for each city.
+* `vw_WeatherStatistics`: Provides overall weather statistics across all records.
+* `vw_CityWeatherStatistics`: Provides aggregated statistics for each city.
 
 These views provide a cleaner data-consumption layer without changing the underlying table.
 
@@ -231,11 +254,13 @@ These views provide a cleaner data-consumption layer without changing the underl
 
 ## 🌐 Flask Web Layer
 
-The project includes a lightweight Flask application.  
+The project includes a lightweight Flask application.
 Flask is not the main purpose of the project. It is only used as a simple data-consumption layer to display the latest weather readings retrieved from the SQL Server view:
-- `vw_LatestWeatherByCity`
+
+* `vw_LatestWeatherByCity`
 
 The flow is:
+
 ```text
 SQL Server
     ↓
@@ -245,19 +270,21 @@ Flask
     ↓
 HTML/CSS
 ```
+
 No JavaScript frontend is required.
 
 ---
 
 ## ⏱️ Automation
 
-The project includes a simple scheduler that can execute the pipeline periodically.  
+The project includes a simple scheduler that can execute the pipeline periodically.
 The scheduler supports:
-- Scheduled execution
-- Retry attempts
-- Failure logging
-- Delay between retries
-- Repeated pipeline execution
+
+* Scheduled execution
+* Retry attempts
+* Failure logging
+* Delay between retries
+* Repeated pipeline execution
 
 The default interval is configurable.
 
@@ -312,7 +339,7 @@ GlobalWeather-Pipeline/
 
 ## ⚙️ Configuration
 
-Environment-specific settings are stored in `.env`.  
+Environment-specific settings are stored in `.env`.
 Sensitive or machine-specific configuration should not be committed to GitHub.
 
 Example configuration:
@@ -336,15 +363,19 @@ REQUEST_DELAY=0.1
 ## ▶️ Running the Pipeline
 
 1. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 2. Create the SQL Server database and table using:
-   - `sql/create_database.sql`
+
+   * `sql/create_database.sql`
 3. Create the SQL views using:
-   - `sql/create_views.sql`
+
+   * `sql/create_views.sql`
 4. Configure the `.env` file.
 5. Then run:
+
    ```bash
    python main.py
    ```
@@ -377,40 +408,40 @@ Loading completed. Inserted: 0, Skipped: 100
 
 This project focuses on understanding practical Data Engineering concepts such as:
 
-- ETL architecture
-- Data contracts between pipeline stages
-- API extraction
-- Data cleaning
-- Data type conversion
-- Data validation
-- Data quality rules
-- Error handling
-- Logging
-- Retry logic
-- Database transactions
-- Rollback
-- Idempotent loading
-- Duplicate detection
-- SQL constraints
-- SQL views
-- Configuration management
-- Separation of responsibilities
+* ETL architecture
+* Data contracts between pipeline stages
+* API extraction
+* Data cleaning
+* Data type conversion
+* Data validation
+* Data quality rules
+* Error handling
+* Logging
+* Retry logic
+* Database transactions
+* Rollback
+* Idempotent loading
+* Duplicate detection
+* SQL constraints
+* SQL views
+* Configuration management
+* Separation of responsibilities
 
 ---
 
 ## ⚠️ Project Scope
 
-This project is intentionally designed as a small training and portfolio project.  
-It is not intended to represent a production-scale weather data platform.  
+This project is intentionally designed as a small training and portfolio project.
+It is not intended to represent a production-scale weather data platform.
 The goal is to demonstrate understanding of fundamental Data Engineering concepts before moving to larger technologies such as:
 
-- Apache Airflow
-- Apache Kafka
-- Apache Spark
-- Docker
-- Cloud platforms
-- Distributed data processing
-- Data warehouses
+* Apache Airflow
+* Apache Kafka
+* Apache Spark
+* Docker
+* Cloud platforms
+* Distributed data processing
+* Data warehouses
 
 ---
 
@@ -418,14 +449,14 @@ The goal is to demonstrate understanding of fundamental Data Engineering concept
 
 Possible future improvements include:
 
-- Apache Airflow orchestration
-- Docker containerization
-- Azure deployment
-- More advanced monitoring
-- Better retry/backoff strategies
-- Historical weather storage
-- More advanced data quality monitoring
-- Larger-scale processing with Spark
+* Apache Airflow orchestration
+* Docker containerization
+* Azure deployment
+* More advanced monitoring
+* Better retry/backoff strategies
+* Historical weather storage
+* More advanced data quality monitoring
+* Larger-scale processing with Spark
 
 These are intentionally outside the current scope of the project.
 
@@ -433,9 +464,9 @@ These are intentionally outside the current scope of the project.
 
 ## 👨‍💻 Author
 
-**Ahmed Ibrahim**  
-Computer and Data Science Student  
-Aspiring Junior Data Engineer  
+**Ahmed Ibrahim**
+Computer and Data Science Student
+Aspiring Junior Data Engineer
 
 ---
 
